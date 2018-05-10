@@ -1,0 +1,64 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: ilb-gateway
+  name: ilb-gateway
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: ilb-gateway
+    spec:
+      nodeSelector:
+        type: ilb-workaround
+      tolerations:
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: ilb-workaround
+      containers:
+      - image: albertocsm/nginx-kubernetes-reload:2.0.0
+        imagePullPolicy: Always
+        name: ilb-gateway
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        - containerPort: 1010
+          protocol: TCP
+          hostPort: 1010
+        - containerPort: 8888
+          protocol: TCP
+          hostPort: 8888
+        - containerPort: 8080
+          protocol: TCP
+          hostPort: 8080
+        env:
+          - name: WATCH_PATHS
+            value: "/etc/nginx"
+        volumeMounts:
+        - mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          name: ilb-gateway-config
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 1010
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 1010
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+      restartPolicy: Always        
+      volumes:
+      - name: ilb-gateway-config
+        configMap:
+          name: ilb-gateway
