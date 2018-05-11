@@ -38,6 +38,9 @@ spec:
         - containerPort: 8080
           protocol: TCP
           hostPort: 8080
+        - containerPort: 9000
+          protocol: TCP
+          hostPort: 9000
         env:
           - name: WATCH_PATHS
             value: "/etc/nginx"
