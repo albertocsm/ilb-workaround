@@ -19,8 +19,6 @@ data:
     http {
         server_names_hash_bucket_size 128;
         server_names_hash_max_size 4096;
-        limit_req_zone $binary_remote_addr zone=flood:50m rate=90r/s;
-        limit_conn_zone $binary_remote_addr zone=addr:50m;
 
         include       /etc/nginx/mime.types;
         default_type  application/octet-stream;
@@ -67,51 +65,7 @@ data:
           }
         }
 
-        # k8s services forwarding while VPC peering/ILBs are not fixed
-        server {
-          listen 8080 http2;
-          charset utf-8;
-          access_log /var/log/nginx/campaignenrichserv_access.log;
-
-          server_name campaignenrichserv.production.travelaudience.cloud;
-          location / {
-            grpc_pass grpc://campaignenrichservd:8080;
-          }
-        }
-
-        server {
-          listen 8080 http2;
-          charset utf-8;
-          access_log /var/log/nginx/offerbiddingserv_access.log;
-
-          server_name offerbiddingserv.production.travelaudience.cloud;
-          location / {
-            grpc_pass grpc://offerbiddingservd:8080;
-          }
-        }
-
-        server {
-          listen 8080 http2;
-          charset utf-8;
-          access_log /var/log/nginx/advertiserserv_access.log;
-
-          server_name advertiserserv.production.travelaudience.cloud;
-          location / {
-            grpc_pass grpc://advertiserservd:8080;
-          }
-        }
-
-        server {
-          listen 9000 http2;
-          charset utf-8;
-          access_log /var/log/nginx/budgetserv_access.log;
-
-          server_name budgetserv.production.travelaudience.cloud;
-          location / {
-            grpc_pass grpc://budgetserv:9000;
-          }
-        }
-
+        
         server {
           listen 8080 http2;
           charset utf-8;
@@ -121,40 +75,7 @@ data:
           location / {
             grpc_pass grpc://charond:8080;
           }
-        }
-
-        server {
-          listen 8080 http2;
-          charset utf-8;
-          access_log /var/log/nginx/creativeserv_access.log;
-
-          server_name creativeserv.production.travelaudience.cloud;
-          location / {
-            grpc_pass grpc://creativeservd:8080;
-          }
-        }
-
-        server {
-          listen 8080 http2;
-          charset utf-8;
-          access_log /var/log/nginx/offerdeliveryserv_access.log;
-
-          server_name offerdeliveryserv.production.travelaudience.cloud;
-          location / {
-            grpc_pass grpc://offerdeliveryservd:8080;
-          }
-        }
-
-        server {
-          listen 8080 http2;
-          charset utf-8;
-          access_log /var/log/nginx/publisherserv_access.log;
-
-          server_name publisherserv.production.travelaudience.cloud;
-          location / {
-            grpc_pass grpc://publisherservd:8080;
-          }
-        }
+        }      
 
         include /etc/nginx/conf.d/*.conf;
     }
